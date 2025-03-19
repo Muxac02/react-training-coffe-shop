@@ -13,6 +13,7 @@ export default class CoffeeAddForm extends Component {
        selectedAddons: [],
        selectedSize: 300,
     }
+    this.formRef = React.createRef();
     this.addAddon = this.addAddon.bind(this);
     this.removeAddon = this.removeAddon.bind(this);
     this.handleSizeSelecte = this.handleSizeSelecte.bind(this);
@@ -51,6 +52,10 @@ export default class CoffeeAddForm extends Component {
   }
 
   render() {
+    const resetForm = () => {
+      this.formRef.current.reset();
+      this.setState({sugarCount: 0});
+    }
     const calcPrice = () => {
       try {
         let resultSum = this.props.data.price[this.props.data.sizes.findIndex((el)=>{
@@ -68,12 +73,18 @@ export default class CoffeeAddForm extends Component {
       }
     }
     return (
-    <Drawer direction='bottom' open={this.props.isOpen} onClose={this.props.toggleDrawer} size='{75}vh'>
-        <div className='coffee-drawer'>
+    <Drawer direction='bottom' open={this.props.isOpen} onClose={()=>{
+      this.props.toggleDrawer({type:'close'})
+      resetForm();}} 
+      size='{75}vh'>
+        <form className='coffee-drawer' ref={this.formRef}>
             <div className='coffee-drawer-title'>
               <img src={`./images/${this.props.data.title}.png`} alt={`${this.props.data.title}`} />
               <h3>{this.props.data.title}</h3>
-              <MdCancel className='coffee-drawer-cancel' onClick={()=>this.props.toggleDrawer({type:'close'})}/>
+              <MdCancel className='coffee-drawer-cancel' onClick={()=>{
+                this.props.toggleDrawer({type:'close'})
+                resetForm();
+                }}/>
             </div>
             <div className='coffee-drawer-addons'>
               <h3>Настроить {this.props.data.title}</h3>
@@ -109,10 +120,11 @@ export default class CoffeeAddForm extends Component {
                   addons: finalAddons,
                   price: calcPrice(),
                 })
-                this.props.toggleDrawer({type:'close'})
+                resetForm();
+                this.props.toggleDrawer({type:'close'});
               }}>Добавить</button>
             </div>
-        </div>
+        </form>
     </Drawer>
     )
   }
